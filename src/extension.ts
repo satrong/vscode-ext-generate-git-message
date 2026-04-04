@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
             {
                 location: vscode.ProgressLocation.Notification,
                 title: '正在生成 commit message...',
-                cancellable: false,
+                cancellable: true,
             },
             async () => {
                 try {

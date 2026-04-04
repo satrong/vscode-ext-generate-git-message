@@ -11,5 +11,15 @@ export async function getGitAPI(): Promise<API | undefined> {
 }
 
 export function getRepository(api: API): Repository | undefined {
+    const activeEditor = vscode.window.activeTextEditor;
+    if (activeEditor) {
+        const wsFolder = vscode.workspace.getWorkspaceFolder(activeEditor.document.uri);
+        if (wsFolder) {
+            const found = api.repositories.find(
+                r => r.rootUri.toString() === wsFolder.uri.toString()
+            );
+            if (found) { return found; }
+        }
+    }
     return api.repositories[0];
 }

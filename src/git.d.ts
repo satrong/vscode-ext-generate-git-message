@@ -23,6 +23,10 @@ export const enum Status {
     IGNORED,
 }
 
+export interface Branch {
+    readonly name: string | undefined;
+}
+
 export interface RepositoryState {
     readonly HEAD: Branch | undefined;
     readonly indexChanges: Change[];
