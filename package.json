@@ -10,9 +10,6 @@
   "categories": [
     "SCM Providers"
   ],
-  "activationEvents": [
-    "onCommand:generateGitMessage.generate"
-  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -65,7 +62,8 @@
   "scripts": {
     "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
     "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
-    "package": "npm run build -- --minify"
+    "package": "npm run build -- --minify",
+    "vsix": "npm run package && npx @vscode/vsce package"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
