@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import defaultPrompt from './prompt.md';
 
 const SECTION = 'generateGitMessage';
 
@@ -16,7 +17,7 @@ export function getConfig(): Config {
         apiBaseUrl: cfg.get<string>('apiBaseUrl', 'https://api.openai.com/v1'),
         apiKey: cfg.get<string>('apiKey', ''),
         model: cfg.get<string>('model', 'gpt-4o-mini'),
-        prompt: cfg.get<string>('prompt', '根据 git diff 生成简洁的 commit message，使用 conventional commits 格式（如 feat/fix/refactor 等）。仅输出 commit message，不要其他内容。'),
-        maxTokens: cfg.get<number>('maxTokens', 256),
+        prompt: cfg.get<string>('prompt', '') || defaultPrompt,
+        maxTokens: cfg.get<number>('maxTokens', 1024),
     };
 }

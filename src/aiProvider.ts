@@ -25,7 +25,7 @@ export async function generateCommitMessage(config: Config, diff: string): Promi
                 max_tokens: config.maxTokens,
                 messages: [
                     { role: 'system', content: config.prompt },
-                    { role: 'user', content: `Here is the git diff:\n\n${truncatedDiff}` },
+                    { role: 'user', content: `以下为修改内容:\n\n${truncatedDiff}` },
                 ],
             }),
             signal: controller.signal,
@@ -36,15 +36,15 @@ export async function generateCommitMessage(config: Config, diff: string): Promi
             throw new Error(`API request failed (${response.status}): ${text}`);
         }
 
-        const data = await response.json() as {
-            choices: Array<{ message: { content: string } }>;
-        };
+        const data = await response.json();
+        const message = (data as Record<string, unknown>)?.choices?.[0]?.message;
 
-        if (!data.choices?.[0]?.message?.content) {
-            throw new Error('API returned empty response');
+        const content = message?.content || message?.reasoning_content;
+        if (!content) {
+            throw new Error(`API returned empty response. Response: ${JSON.stringify(data)}`);
         }
 
-        return data.choices[0].message.content.trim();
+        return (content as string).trim();
     } finally {
         clearTimeout(timeoutId);
     }
