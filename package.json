@@ -53,8 +53,8 @@
         },
         "generateGitMessage.maxTokens": {
           "type": "number",
-          "default": 1024,
-          "description": "最大生成 token 数"
+          "default": 0,
+          "description": "最大生成 token 数（0 表示不限制）"
         }
       }
     }

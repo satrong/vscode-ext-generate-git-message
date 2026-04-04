@@ -22,7 +22,7 @@ export async function generateCommitMessage(config: Config, diff: string): Promi
             },
             body: JSON.stringify({
                 model: config.model,
-                max_tokens: config.maxTokens,
+                ...(config.maxTokens > 0 ? { max_tokens: config.maxTokens } : {}),
                 messages: [
                     { role: 'system', content: config.prompt },
                     { role: 'user', content: `以下为修改内容:\n\n${truncatedDiff}` },

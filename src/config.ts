@@ -18,6 +18,6 @@ export function getConfig(): Config {
         apiKey: cfg.get<string>('apiKey', ''),
         model: cfg.get<string>('model', 'gpt-4o-mini'),
         prompt: cfg.get<string>('prompt', '') || defaultPrompt,
-        maxTokens: cfg.get<number>('maxTokens', 1024),
+        maxTokens: cfg.get<number>('maxTokens', 0),
     };
 }
