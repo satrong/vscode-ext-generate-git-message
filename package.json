@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "generateGitMessage.generate",
-        "title": "Generate Commit Message",
+        "title": "生成提交记录",
         "icon": {
             "light": "resources/icon-light.svg",
             "dark": "resources/icon-dark.svg"
