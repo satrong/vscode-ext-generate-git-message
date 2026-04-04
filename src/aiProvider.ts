@@ -3,7 +3,7 @@ import { Config } from './config';
 const MAX_DIFF_LENGTH = 10_000;
 const REQUEST_TIMEOUT = 30_000;
 
-export async function generateCommitMessage(config: Config, diff: string): Promise<string> {
+export async function generateCommitMessage(config: Config, diff: string, log: (msg: string) => void): Promise<string> {
     const truncatedDiff = diff.length > MAX_DIFF_LENGTH
         ? diff.slice(0, MAX_DIFF_LENGTH) + '\n\n... (diff truncated)'
         : diff;
@@ -14,6 +14,9 @@ export async function generateCommitMessage(config: Config, diff: string): Promi
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
     try {
+        log(`请求 API: ${url}`);
+        log(`使用 diff 长度: ${truncatedDiff.length} 字符${diff.length > MAX_DIFF_LENGTH ? ' (已截断)' : ''}`);
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -30,6 +33,8 @@ export async function generateCommitMessage(config: Config, diff: string): Promi
             }),
             signal: controller.signal,
         });
+
+        log(`API 响应状态: ${response.status}`);
 
         if (!response.ok) {
             const text = await response.text();
