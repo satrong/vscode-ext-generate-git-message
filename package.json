@@ -16,7 +16,7 @@
       {
         "command": "generateGitMessage.generate",
         "title": "Generate Commit Message",
-        "icon": "$(sparkle)"
+        "icon": "resources/icon.svg"
       }
     ],
     "menus": {
