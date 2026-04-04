@@ -52,7 +52,8 @@
         "generateGitMessage.prompt": {
           "type": "string",
           "default": "",
-          "description": "自定义提示词"
+          "description": "自定义提示词",
+          "editPresentation": "multilineTextEditor"
         },
         "generateGitMessage.maxTokens": {
           "type": "number",
