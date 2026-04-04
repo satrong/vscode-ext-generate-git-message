@@ -44,16 +44,14 @@ export function activate(context: vscode.ExtensionContext) {
 
         await vscode.window.withProgress(
             {
-                location: vscode.ProgressLocation.Notification,
+                location: vscode.ProgressLocation.SourceControl,
                 title: '正在生成 commit message...',
-                cancellable: true,
             },
             async () => {
                 try {
                     const diff = await repo.diff(true);
                     if (!diff.trim()) {
                         log('警告: 暂存区 diff 为空');
-                        vscode.window.showWarningMessage('暂存区 diff 为空');
                         return;
                     }
                     log(`diff 长度: ${diff.length} 字符`);
@@ -64,7 +62,6 @@ export function activate(context: vscode.ExtensionContext) {
                 } catch (err) {
                     const msg = err instanceof Error ? err.message : String(err);
                     log(`生成失败: ${msg}`);
-                    vscode.window.showErrorMessage(`生成失败: ${msg}`);
                 }
             }
         );
