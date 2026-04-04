@@ -16,6 +16,15 @@
 2. 点击源代码管理标题栏上的 ✨ 图标，或通过命令面板执行 `生成提交记录`
 3. 等待生成完成，commit message 会自动填入输入框
 
+## 配置 API Key
+
+提供两种方式，按优先级依次尝试：
+
+1. **命令设置（推荐）**：在命令面板（`Cmd+Shift+P`）运行 `Generate Git Message: 设置 API Key`，密钥将安全存储在系统密钥链中（macOS Keychain / Windows Credential Manager / Linux libsecret）
+2. **环境变量**：设置 `GENERATE_GIT_MESSAGE_API_KEY` 环境变量
+
+可通过命令 `Generate Git Message: 删除 API Key` 移除已存储的密钥。
+
 ## 配置项
 
 在 VSCode 设置中搜索 `Generate Git Message` 进行配置：
@@ -23,7 +32,6 @@
 | 配置项 | 说明 | 默认值 |
 |--------|------|--------|
 | `generateGitMessage.apiBaseUrl` | OpenAI 兼容 API 的基础 URL | `https://api.openai.com/v1` |
-| `generateGitMessage.apiKey` | API Key | （空） |
 | `generateGitMessage.model` | 模型名称 | `gpt-4o-mini` |
 | `generateGitMessage.prompt` | 自定义提示词（为空则使用内置模板） | （空） |
 | `generateGitMessage.maxTokens` | 最大生成 token 数（0 表示不限制） | `0` |
