@@ -1,9 +1,9 @@
 {
   "name": "generate-git-message",
   "displayName": "Generate Git Message",
-  "description": "根据 staged 文件生成 AI commit message",
+  "description": "根据 staged 文件通过 AI 生成提交信息",
   "version": "0.0.1",
-  "publisher": "local",
+  "publisher": "Satrong",
   "engines": {
     "vscode": "^1.85.0"
   },
