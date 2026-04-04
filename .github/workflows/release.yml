@@ -32,6 +32,11 @@ jobs:
 
       - run: pnpm vsix
 
+      - name: Publish to Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: pnpm vsce publish --skip-duplicate
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
