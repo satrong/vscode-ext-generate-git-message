@@ -37,8 +37,75 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: pnpm vsce publish --skip-duplicate
 
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            RANGE_ARG="$PREV_TAG..HEAD"
+            echo "范围: $RANGE_ARG"
+          else
+            RANGE_ARG=""
+            echo "无上一个 tag，使用全部提交记录"
+          fi
+
+          # 按类型分组汇总
+          { echo "## 更新日志"; echo ""
+
+            # feat
+            FEAT=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^feat' 2>/dev/null || true)
+            if [ -n "$FEAT" ]; then echo "### ✨ 新功能"; echo "$FEAT"; echo ""; fi
+
+            # fix
+            FIX=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^fix' 2>/dev/null || true)
+            if [ -n "$FIX" ]; then echo "### 🐛 修复"; echo "$FIX"; echo ""; fi
+
+            # docs
+            DOCS=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^docs' 2>/dev/null || true)
+            if [ -n "$DOCS" ]; then echo "### 📝 文档"; echo "$DOCS"; echo ""; fi
+
+            # style
+            STYLE=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^style' 2>/dev/null || true)
+            if [ -n "$STYLE" ]; then echo "### 💄 样式"; echo "$STYLE"; echo ""; fi
+
+            # refactor
+            REFACTOR=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^refactor' 2>/dev/null || true)
+            if [ -n "$REFACTOR" ]; then echo "### ♻️ 重构"; echo "$REFACTOR"; echo ""; fi
+
+            # perf
+            PERF=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^perf' 2>/dev/null || true)
+            if [ -n "$PERF" ]; then echo "### ⚡ 性能"; echo "$PERF"; echo ""; fi
+
+            # test
+            TEST=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^test' 2>/dev/null || true)
+            if [ -n "$TEST" ]; then echo "### ✅ 测试"; echo "$TEST"; echo ""; fi
+
+            # build / ci
+            CI=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^\(build\|ci\)' 2>/dev/null || true)
+            if [ -n "$CI" ]; then echo "### 📦 构建/CI"; echo "$CI"; echo ""; fi
+
+            # chore
+            CHORE=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' --grep='^chore' 2>/dev/null || true)
+            if [ -n "$CHORE" ]; then echo "### 🔧 其他"; echo "$CHORE"; echo ""; fi
+
+            # 未匹配的提交
+            OTHER=$(git log ${RANGE_ARG:+$RANGE_ARG} --no-merges --format='- %s' \
+              --invert-grep --grep='^\(feat\|fix\|docs\|style\|refactor\|perf\|test\|build\|ci\|chore\)' 2>/dev/null || true)
+            if [ -n "$OTHER" ]; then echo "### 其他"; echo "$OTHER"; echo ""; fi
+          } > CHANGELOG.md
+
+          cat CHANGELOG.md
+
+          # 写入多行输出到 GITHUB_OUTPUT
+          {
+            echo "body<<EOF"
+            cat CHANGELOG.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: '*.vsix'
-          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.body }}
