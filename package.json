@@ -21,6 +21,16 @@
             "light": "resources/icon-light.svg",
             "dark": "resources/icon-dark.svg"
           }
+      },
+      {
+        "command": "generateGitMessage.setApiKey",
+        "title": "设置 API Key",
+        "category": "Generate Git Message"
+      },
+      {
+        "command": "generateGitMessage.deleteApiKey",
+        "title": "删除 API Key",
+        "category": "Generate Git Message"
       }
     ],
     "menus": {
@@ -39,11 +49,6 @@
           "type": "string",
           "default": "https://api.openai.com/v1",
           "description": "OpenAI 兼容 API 的基础 URL"
-        },
-        "generateGitMessage.apiKey": {
-          "type": "string",
-          "default": "",
-          "description": "API Key"
         },
         "generateGitMessage.model": {
           "type": "string",

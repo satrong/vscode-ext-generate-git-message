@@ -1,22 +1,23 @@
 import * as vscode from 'vscode';
 import { getGitAPI, getRepository } from './gitApi';
-import { getConfig } from './config';
+import { getConfig, getApiKey, setApiKey, deleteApiKey } from './config';
 import { generateCommitMessage } from './aiProvider';
 import { initOutputChannel, log, showOutput } from './logger';
 
 export function activate(context: vscode.ExtensionContext) {
     initOutputChannel(context);
 
-    const disposable = vscode.commands.registerCommand('generateGitMessage.generate', async () => {
+    const generateCmd = vscode.commands.registerCommand('generateGitMessage.generate', async () => {
         log('=== 开始生成 commit message ===');
         showOutput();
 
-        const config = getConfig();
+        const config = getConfig(context.secrets);
+        config.apiKey = await getApiKey(context.secrets);
         log(`配置: apiBaseUrl=${config.apiBaseUrl}, model=${config.model}, maxTokens=${config.maxTokens}`);
 
         if (!config.apiKey) {
             log('错误: 未配置 apiKey');
-            vscode.window.showErrorMessage('请先在设置中配置 generateGitMessage.apiKey');
+            vscode.window.showErrorMessage('请先配置 API Key：运行命令 "Generate Git Message: 设置 API Key"');
             return;
         }
 
@@ -67,7 +68,36 @@ export function activate(context: vscode.ExtensionContext) {
         );
     });
 
-    context.subscriptions.push(disposable);
+    const setKeyCmd = vscode.commands.registerCommand('generateGitMessage.setApiKey', async () => {
+        const input = await vscode.window.showInputBox({
+            prompt: '输入 API Key（将安全存储在系统密钥链中）',
+            password: true,
+            ignoreFocusOut: true,
+        });
+        if (input !== undefined) {
+            await setApiKey(context.secrets, input);
+            vscode.window.showInformationMessage('API Key 已安全保存');
+        }
+    });
+
+    const deleteKeyCmd = vscode.commands.registerCommand('generateGitMessage.deleteApiKey', async () => {
+        const current = await getApiKey(context.secrets);
+        if (!current) {
+            vscode.window.showInformationMessage('当前未存储 API Key');
+            return;
+        }
+        const confirm = await vscode.window.showWarningMessage(
+            '确定要删除已存储的 API Key 吗？',
+            { modal: true },
+            '删除'
+        );
+        if (confirm === '删除') {
+            await deleteApiKey(context.secrets);
+            vscode.window.showInformationMessage('API Key 已删除');
+        }
+    });
+
+    context.subscriptions.push(generateCmd, setKeyCmd, deleteKeyCmd);
 }
 
 export function deactivate() {}
