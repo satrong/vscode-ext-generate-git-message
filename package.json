@@ -16,7 +16,10 @@
       {
         "command": "generateGitMessage.generate",
         "title": "Generate Commit Message",
-        "icon": "resources/icon.svg"
+        "icon": {
+            "light": "resources/icon-light.svg",
+            "dark": "resources/icon-dark.svg"
+          }
       }
     ],
     "menus": {
