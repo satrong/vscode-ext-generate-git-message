@@ -77,6 +77,6 @@
     "esbuild": "^0.28.0",
     "typescript": "^6.0.2"
   },
-  "repository": "https://github.com/satrong",
+  "repository": "https://github.com/satrong/vscode-ext-generate-git-message.git",
   "license": "MIT"
 }
