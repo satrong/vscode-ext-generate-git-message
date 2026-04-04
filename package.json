@@ -1,0 +1,75 @@
+{
+  "name": "generate-git-message",
+  "displayName": "Generate Git Message",
+  "description": "根据 staged 文件生成 AI commit message",
+  "version": "0.0.1",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "SCM Providers"
+  ],
+  "activationEvents": [
+    "onCommand:generateGitMessage.generate"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "generateGitMessage.generate",
+        "title": "Generate Commit Message",
+        "icon": "$(sparkle)"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "generateGitMessage.generate",
+          "when": "scmProvider == git",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Generate Git Message",
+      "properties": {
+        "generateGitMessage.apiBaseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "OpenAI 兼容 API 的基础 URL"
+        },
+        "generateGitMessage.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API Key"
+        },
+        "generateGitMessage.model": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "模型名称"
+        },
+        "generateGitMessage.prompt": {
+          "type": "string",
+          "default": "根据 git diff 生成简洁的 commit message，使用 conventional commits 格式（如 feat/fix/refactor 等）。仅输出 commit message，不要其他内容。",
+          "description": "自定义提示词"
+        },
+        "generateGitMessage.maxTokens": {
+          "type": "number",
+          "default": 256,
+          "description": "最大生成 token 数"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch",
+    "package": "npm run build -- --minify"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.4.0"
+  }
+}
