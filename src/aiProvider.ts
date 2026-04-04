@@ -37,7 +37,7 @@ export async function generateCommitMessage(config: Config, diff: string): Promi
         }
 
         const data = await response.json();
-        const message = (data as Record<string, unknown>)?.choices?.[0]?.message;
+        const message = (data as Record<string, any>)?.choices?.[0]?.message;
 
         const content = message?.content || message?.reasoning_content;
         if (!content) {
