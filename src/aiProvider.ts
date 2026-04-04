@@ -49,7 +49,7 @@ export async function generateCommitMessage(config: Config, diff: string, log: (
             throw new Error(`API returned empty response. Response: ${JSON.stringify(data)}`);
         }
 
-        return (content as string).trim();
+        return (content as string).replace(/\n*---\s*$/, '').trim();
     } finally {
         clearTimeout(timeoutId);
     }
