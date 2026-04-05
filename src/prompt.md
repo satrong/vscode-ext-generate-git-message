@@ -93,7 +93,7 @@ feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 
 feat(auth): 支持微信登录
 
-* 解决第三方登录流程缺失问题
-* 减少用户注册流程复杂度
+- 解决第三方登录流程缺失问题
+- 减少用户注册流程复杂度
 
 ---
