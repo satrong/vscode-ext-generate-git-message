@@ -65,6 +65,12 @@
           "type": "number",
           "default": 0,
           "description": "最大生成 token 数（0 表示不限制）"
+        },
+        "generateGitMessage.extraBody": {
+          "type": "string",
+          "default": "",
+          "description": "额外的请求体参数（JSON 字符串，会合并到 API 请求体中）",
+          "editPresentation": "multilineTextEditor"
         }
       }
     }

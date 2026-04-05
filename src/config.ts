@@ -10,6 +10,17 @@ export interface Config {
     model: string;
     prompt: string;
     maxTokens: number;
+    extraBody: Record<string, unknown>;
+}
+
+function parseExtraBody(raw: string): Record<string, unknown> {
+    if (!raw.trim()) return {};
+    try {
+        const parsed = JSON.parse(raw);
+        return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+        return {};
+    }
 }
 
 export function getConfig(secrets: vscode.SecretStorage): Config {
@@ -20,6 +31,7 @@ export function getConfig(secrets: vscode.SecretStorage): Config {
         model: cfg.get<string>('model', 'gpt-4o-mini'),
         prompt: cfg.get<string>('prompt', '') || defaultPrompt,
         maxTokens: cfg.get<number>('maxTokens', 0),
+        extraBody: parseExtraBody(cfg.get<string>('extraBody', '')),
     };
 }
 
