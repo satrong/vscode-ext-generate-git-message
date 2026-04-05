@@ -7,6 +7,7 @@
 - 一键生成符合 Conventional Commits 规范的中文 commit message
 - 支持所有 OpenAI 兼容的 API 端点（OpenAI、DeepSeek、Ollama 等）
 - 自定义提示词模板
+- 支持自定义 API 请求体参数（适配不同模型的特殊参数）
 - 在源代码管理工具栏提供快捷按钮
 - 零运行时依赖
 
@@ -35,6 +36,7 @@
 | `generateGitMessage.model` | 模型名称 | `gpt-4o-mini` |
 | `generateGitMessage.prompt` | 自定义提示词（为空则使用内置模板） | （空） |
 | `generateGitMessage.maxTokens` | 最大生成 token 数（0 表示不限制） | `0` |
+| `generateGitMessage.extraBody` | 额外的请求体参数（JSON 字符串，会合并到 API 请求体中） | （空） |
 
 ## 开发
 
