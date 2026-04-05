@@ -2,14 +2,13 @@ import * as vscode from 'vscode';
 import { getGitAPI, getRepository } from './gitApi';
 import { getConfig, getApiKey, setApiKey, deleteApiKey } from './config';
 import { generateCommitMessage } from './aiProvider';
-import { initOutputChannel, log, showOutput } from './logger';
+import { initOutputChannel, log } from './logger';
 
 export function activate(context: vscode.ExtensionContext) {
     initOutputChannel(context);
 
     const generateCmd = vscode.commands.registerCommand('generateGitMessage.generate', async () => {
         log('=== 开始生成 commit message ===');
-        showOutput();
 
         const config = getConfig(context.secrets);
         config.apiKey = await getApiKey(context.secrets);
