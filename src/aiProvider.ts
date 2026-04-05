@@ -1,13 +1,8 @@
 import { Config } from './config';
 
-const MAX_DIFF_LENGTH = 10_000;
 const REQUEST_TIMEOUT = 30_000;
 
 export async function generateCommitMessage(config: Config, diff: string, log: (msg: string) => void): Promise<string> {
-    const truncatedDiff = diff.length > MAX_DIFF_LENGTH
-        ? diff.slice(0, MAX_DIFF_LENGTH) + '\n\n... (diff truncated)'
-        : diff;
-
     const url = `${config.apiBaseUrl.replace(/\/+$/, '')}/chat/completions`;
 
     const controller = new AbortController();
@@ -15,7 +10,6 @@ export async function generateCommitMessage(config: Config, diff: string, log: (
 
     try {
         log(`请求 API: ${url}`);
-        log(`使用 diff 长度: ${truncatedDiff.length} 字符${diff.length > MAX_DIFF_LENGTH ? ' (已截断)' : ''}`);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -28,7 +22,7 @@ export async function generateCommitMessage(config: Config, diff: string, log: (
                 ...(config.maxTokens > 0 ? { max_tokens: config.maxTokens } : {}),
                 messages: [
                     { role: 'system', content: config.prompt },
-                    { role: 'user', content: `以下为修改内容:\n\n${truncatedDiff}` },
+                    { role: 'user', content: `以下为修改内容:\n\n${diff}` },
                 ],
             }),
             signal: controller.signal,

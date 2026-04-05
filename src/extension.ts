@@ -3,6 +3,34 @@ import { getGitAPI, getRepository } from './gitApi';
 import { getConfig, getApiKey, setApiKey, deleteApiKey } from './config';
 import { generateCommitMessage } from './aiProvider';
 import { initOutputChannel, log } from './logger';
+import { processDiff, FileChange } from './diffProcessor';
+
+// 对应 git.d.ts 中 Status const enum 的值
+const STATUS_INDEX_MODIFIED = 0;
+const STATUS_INDEX_ADDED = 1;
+const STATUS_INDEX_DELETED = 2;
+const STATUS_INDEX_RENAMED = 3;
+const STATUS_INDEX_COPIED = 4;
+
+const STATUS_MAP: Record<number, FileChange['status']> = {
+    [STATUS_INDEX_MODIFIED]: 'modified',
+    [STATUS_INDEX_ADDED]: 'added',
+    [STATUS_INDEX_DELETED]: 'deleted',
+    [STATUS_INDEX_RENAMED]: 'renamed',
+    [STATUS_INDEX_COPIED]: 'copied',
+};
+
+function toFileChanges(indexChanges: readonly import('./git').Change[]): FileChange[] {
+    return indexChanges.map(c => {
+        const path = vscode.workspace.asRelativePath(c.uri);
+        const status = STATUS_MAP[c.status] ?? 'modified';
+        const result: FileChange = { path, status };
+        if (c.status === STATUS_INDEX_RENAMED || c.status === STATUS_INDEX_COPIED) {
+            result.oldPath = vscode.workspace.asRelativePath(c.originalUri);
+        }
+        return result;
+    });
+}
 
 export function activate(context: vscode.ExtensionContext) {
     initOutputChannel(context);
@@ -49,12 +77,16 @@ export function activate(context: vscode.ExtensionContext) {
             },
             async () => {
                 try {
-                    const diff = await repo.diff(true);
-                    if (!diff.trim()) {
+                    const rawDiff = await repo.diff(true);
+                    if (!rawDiff.trim()) {
                         log('警告: 暂存区 diff 为空');
                         return;
                     }
-                    log(`diff 长度: ${diff.length} 字符`);
+                    log(`原始 diff 长度: ${rawDiff.length} 字符`);
+
+                    const fileChanges = toFileChanges(repo.state.indexChanges);
+                    const diff = processDiff(rawDiff, fileChanges);
+                    log(`处理后 diff 长度: ${diff.length} 字符`);
 
                     const message = await generateCommitMessage(config, diff, log);
                     log(`生成成功: ${message}`);
