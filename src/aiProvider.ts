@@ -6,7 +6,7 @@ export async function generateCommitMessage(config: Config, diff: string, log: (
     const url = `${config.apiBaseUrl.replace(/\/+$/, '')}/chat/completions`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    const timeoutId = setTimeout(() => controller.abort(`请求超时 (${REQUEST_TIMEOUT / 1000} s)`), REQUEST_TIMEOUT);
 
     try {
         log(`请求 API: ${url}`);
