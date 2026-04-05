@@ -18,9 +18,9 @@
         "command": "generateGitMessage.generate",
         "title": "生成提交记录",
         "icon": {
-            "light": "resources/icon-light.svg",
-            "dark": "resources/icon-dark.svg"
-          }
+          "light": "resources/icon-light.svg",
+          "dark": "resources/icon-dark.svg"
+        }
       },
       {
         "command": "generateGitMessage.setApiKey",
@@ -73,14 +73,16 @@
     "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --loader:.md=text",
     "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --watch --sourcemap --loader:.md=text",
     "package": "pnpm build --minify",
-    "vsix": "pnpm package && vsce package"
+    "vsix": "pnpm package && vsce package",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.3.0",
     "esbuild": "^0.28.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   },
   "repository": "https://github.com/satrong/vscode-ext-generate-git-message.git",
   "license": "MIT"
