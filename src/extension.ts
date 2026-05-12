@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const repo = getRepository(gitApi);
+        const repo = await getRepository(gitApi);
         if (!repo) {
             log('错误: 未找到 Git 仓库');
             vscode.window.showErrorMessage('未找到 Git 仓库');

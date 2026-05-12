@@ -10,7 +10,14 @@ export async function getGitAPI(): Promise<API | undefined> {
     return gitExtension.getAPI(1);
 }
 
-export function getRepository(api: API): Repository | undefined {
+export async function getRepository(api: API): Promise<Repository | undefined> {
+    if (api.repositories.length === 0) {
+        return undefined;
+    }
+    if (api.repositories.length === 1) {
+        return api.repositories[0];
+    }
+
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor) {
         const wsFolder = vscode.workspace.getWorkspaceFolder(activeEditor.document.uri);
@@ -21,5 +28,27 @@ export function getRepository(api: API): Repository | undefined {
             if (found) { return found; }
         }
     }
-    return api.repositories[0];
+
+    const reposWithStaged = api.repositories.filter(
+        r => r.state.indexChanges.length > 0
+    );
+    if (reposWithStaged.length === 1) {
+        return reposWithStaged[0];
+    }
+
+    const items = api.repositories.map(r => {
+        const label = vscode.workspace.asRelativePath(r.rootUri);
+        const staged = r.state.indexChanges.length;
+        return {
+            label,
+            description: staged > 0 ? `${staged} staged` : undefined,
+            repository: r,
+        };
+    });
+
+    const picked = await vscode.window.showQuickPick(items, {
+        placeHolder: '选择要生成 commit message 的仓库',
+    });
+
+    return picked?.repository;
 }
