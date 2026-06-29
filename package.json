@@ -23,6 +23,14 @@
         }
       },
       {
+        "command": "generateGitMessage.translate",
+        "title": "翻译提交记录",
+        "icon": {
+          "light": "resources/icon-translate-light.svg",
+          "dark": "resources/icon-translate-dark.svg"
+        }
+      },
+      {
         "command": "generateGitMessage.setApiKey",
         "title": "设置 API Key",
         "category": "Generate Git Message"
@@ -37,6 +45,11 @@
       "scm/title": [
         {
           "command": "generateGitMessage.generate",
+          "when": "scmProvider == git",
+          "group": "navigation"
+        },
+        {
+          "command": "generateGitMessage.translate",
           "when": "scmProvider == git",
           "group": "navigation"
         }
@@ -70,6 +83,17 @@
           "type": "string",
           "default": "",
           "description": "额外的请求体参数（JSON 字符串，会合并到 API 请求体中）",
+          "editPresentation": "multilineTextEditor"
+        },
+        "generateGitMessage.targetLanguage": {
+          "type": "string",
+          "default": "English",
+          "description": "翻译提交信息的目标语言（如 English、中文）"
+        },
+        "generateGitMessage.translatePrompt": {
+          "type": "string",
+          "default": "",
+          "description": "自定义翻译提示词（为空则使用内置模板，可用 {{targetLanguage}} 占位符）",
           "editPresentation": "multilineTextEditor"
         }
       }

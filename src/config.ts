@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import defaultPrompt from './prompt.md';
+import defaultTranslatePrompt from './translate-prompt.md';
 
 const SECTION = 'generateGitMessage';
 const SECRET_KEY = 'apiKey';
@@ -11,6 +12,8 @@ export interface Config {
     prompt: string;
     maxTokens: number;
     extraBody: Record<string, unknown>;
+    targetLanguage: string;
+    translatePrompt: string;
 }
 
 function parseExtraBody(raw: string): Record<string, unknown> {
@@ -32,6 +35,8 @@ export function getConfig(secrets: vscode.SecretStorage): Config {
         prompt: cfg.get<string>('prompt', '') || defaultPrompt,
         maxTokens: cfg.get<number>('maxTokens', 0),
         extraBody: parseExtraBody(cfg.get<string>('extraBody', '')),
+        targetLanguage: cfg.get<string>('targetLanguage', 'English'),
+        translatePrompt: cfg.get<string>('translatePrompt', '') || defaultTranslatePrompt,
     };
 }
 

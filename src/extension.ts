@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getGitAPI, getRepository } from './gitApi';
 import { getConfig, getApiKey, setApiKey, deleteApiKey } from './config';
-import { generateCommitMessage } from './aiProvider';
+import { generateCommitMessage, translateCommitMessage } from './aiProvider';
 import { initOutputChannel, log } from './logger';
 import { processDiff, FileChange } from './diffProcessor';
 
@@ -99,6 +99,60 @@ export function activate(context: vscode.ExtensionContext) {
         );
     });
 
+    const translateCmd = vscode.commands.registerCommand('generateGitMessage.translate', async () => {
+        log('=== 开始翻译 commit message ===');
+
+        const config = getConfig(context.secrets);
+        config.apiKey = await getApiKey(context.secrets);
+        log(`配置: apiBaseUrl=${config.apiBaseUrl}, model=${config.model}, targetLanguage=${config.targetLanguage}`);
+
+        if (!config.apiKey) {
+            log('错误: 未配置 apiKey');
+            vscode.window.showErrorMessage('请先配置 API Key：运行命令 "Generate Git Message: 设置 API Key"');
+            return;
+        }
+
+        const gitApi = await getGitAPI();
+        if (!gitApi) {
+            log('错误: 无法获取 Git 扩展 API');
+            vscode.window.showErrorMessage('无法获取 Git 扩展 API');
+            return;
+        }
+
+        const repo = await getRepository(gitApi);
+        if (!repo) {
+            log('错误: 未找到 Git 仓库');
+            vscode.window.showErrorMessage('未找到 Git 仓库');
+            return;
+        }
+
+        const message = repo.inputBox.value.trim();
+        if (!message) {
+            log('警告: commit 输入框为空');
+            vscode.window.showWarningMessage('提交信息输入框为空，请先输入或生成 commit message');
+            return;
+        }
+
+        log(`待翻译内容长度: ${message.length} 字符`);
+
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.SourceControl,
+                title: `正在翻译 commit message（${config.targetLanguage}）...`,
+            },
+            async () => {
+                try {
+                    const translated = await translateCommitMessage(config, message, log);
+                    log(`翻译成功: ${translated}`);
+                    repo.inputBox.value = translated;
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    log(`翻译失败: ${msg}`);
+                }
+            }
+        );
+    });
+
     const setKeyCmd = vscode.commands.registerCommand('generateGitMessage.setApiKey', async () => {
         const input = await vscode.window.showInputBox({
             prompt: '输入 API Key（将安全存储在系统密钥链中）',
@@ -128,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(generateCmd, setKeyCmd, deleteKeyCmd);
+    context.subscriptions.push(generateCmd, translateCmd, setKeyCmd, deleteKeyCmd);
 }
 
 export function deactivate() {}

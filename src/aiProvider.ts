@@ -2,7 +2,12 @@ import { Config } from './config';
 
 const REQUEST_TIMEOUT = 30_000;
 
-export async function generateCommitMessage(config: Config, diff: string, log: (msg: string) => void): Promise<string> {
+async function chatCompletion(
+    config: Config,
+    systemPrompt: string,
+    userContent: string,
+    log: (msg: string) => void
+): Promise<string> {
     const url = `${config.apiBaseUrl.replace(/\/+$/, '')}/chat/completions`;
 
     const controller = new AbortController();
@@ -22,8 +27,8 @@ export async function generateCommitMessage(config: Config, diff: string, log: (
                 ...(config.maxTokens > 0 ? { max_tokens: config.maxTokens } : {}),
                 model: config.model,
                 messages: [
-                    { role: 'system', content: config.prompt },
-                    { role: 'user', content: `以下为修改内容:\n\n${diff}` },
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userContent },
                 ],
             }),
             signal: controller.signal,
@@ -48,4 +53,17 @@ export async function generateCommitMessage(config: Config, diff: string, log: (
     } finally {
         clearTimeout(timeoutId);
     }
+}
+
+export async function generateCommitMessage(config: Config, diff: string, log: (msg: string) => void): Promise<string> {
+    return chatCompletion(config, config.prompt, `以下为修改内容:\n\n${diff}`, log);
+}
+
+export async function translateCommitMessage(
+    config: Config,
+    message: string,
+    log: (msg: string) => void
+): Promise<string> {
+    const systemPrompt = config.translatePrompt.replace(/\{\{targetLanguage\}\}/g, config.targetLanguage);
+    return chatCompletion(config, systemPrompt, `待翻译的 commit message:\n\n${message}`, log);
 }
